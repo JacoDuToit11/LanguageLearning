@@ -3,7 +3,9 @@ import os
 
 difficulty_level = 'beginner'
 # difficulty_level = 'intermediate'
+
 language = 'German'
+# language = 'Afrikaans'
 
 text_lessons_path = f'../data/{language}/text/{difficulty_level}/'
 speech_lessons_path = f'../data/{language}/speech/{difficulty_level}/'
@@ -15,6 +17,7 @@ def main():
     text_to_speech()
 
 def text_to_speech():
+    # TODO redo this
     lessons_text_files = sorted(os.listdir(text_lessons_path))
     lessons_text_files.remove('combined_lessons.txt')
 
@@ -22,7 +25,9 @@ def text_to_speech():
         with open(f'{text_lessons_path}{text_file}', 'r') as file:
             text = file.read()
         
+        text = text[:1000]
         print(text)
+        exit()
         response = openai_client.audio.speech.create(
             model=speech_model,
             voice='onyx',
