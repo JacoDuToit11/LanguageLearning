@@ -2,17 +2,23 @@ from openai import OpenAI
 import os
 import textwrap
 import json
+import re
 
 openai_client = OpenAI(api_key=os.environ['JACO_OPENAI_API_KEY'])
-model = "gpt-4o-mini"
+# model = "gpt-4o-mini"
+model = "gpt-4o-2024-08-06"
 num_lessons = 10
 phrases_per_lesson = 25
 
-difficulty_level = 'beginner'
-# difficulty_level = 'intermediate'
-
 language = 'German'
 # language = 'Afrikaans'
+
+# difficulty_level = 'beginner'
+difficulty_level = 'intermediate'
+
+output_path = f'../data/{language}/{difficulty_level}/'
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 with open('../data/language_examples.json', 'r') as file:
     data = json.load(file)
@@ -25,7 +31,7 @@ def gen_lessons_text():
     system_instruction = 'You are a language teacher creating a podcast to help people learn a language.'
 
     prompt = textwrap.dedent(f'''
-    Provide {num_lessons} lessons for people learning {language}. You should give a phrase in English, 
+    Provide exactly {num_lessons} different lessons for people learning {language}. You should give a phrase in English, 
     and then the translation in {language}. Each lesson should contain {phrases_per_lesson} phrases. 
     These lessons should be at a {difficulty_level} level. You can make up details like names and years.
     The format should look like this: 
@@ -42,13 +48,42 @@ def gen_lessons_text():
     messages = [{'role':'system', 'content':system_instruction},
                 {'role':'user', 'content':prompt}]
     
-    response = openai_client.chat.completions.create(
+    lessons = openai_client.chat.completions.create(
         model=model,
         messages=messages
     ).choices[0].message.content
 
-    with open(f'../data/{language}/text/{difficulty_level}/combined_lessons.txt', 'w') as file:
-        file.write(response)
+    lesson_pattern = re.compile(r'### (Lesson ([\w]+):[\S\s]+?)---')
+    lessons = re.findall(lesson_pattern, lessons)
+
+    lessons_dict = {}
+    for lesson in lessons:
+        lesson_output = process_lesson_text(lesson[0])
+        lessons_dict[lesson[1]] = lesson_output
+
+    with open(f'{output_path}lessons.json', 'w') as file:
+        json.dump(lessons_dict, file, indent=4)
+
+def process_lesson_text(text):
+    pattern = r"([0-9]+[.])\s"
+    text = re.sub(pattern, r"", text)
+
+    pattern = r"([.]{3})"
+    text = re.sub(pattern, r".", text)
+
+    text_lines = text.splitlines()
+    if '' in text_lines:
+        text_lines.remove('')
+    
+    output = []
+    for i, line in enumerate(text_lines):
+        if i < 2:
+            output.append(line)
+        else:
+            pattern = re.compile(r'\s*([^.!?]*[.!?])')
+            sentences = pattern.findall(line)
+            output.extend(sentences)
+    return output
 
 if __name__ == '__main__':
     main()
