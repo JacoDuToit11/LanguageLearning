@@ -3,18 +3,21 @@ import os
 import textwrap
 import json
 import re
+import yaml
 
 openai_client = OpenAI(api_key=os.environ['JACO_OPENAI_API_KEY'])
+
 # model = "gpt-4o-mini"
 model = "gpt-4o-2024-08-06"
+
 num_lessons = 10
 phrases_per_lesson = 25
 
-language = 'German'
-# language = 'Afrikaans'
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)
 
-# difficulty_level = 'beginner'
-difficulty_level = 'intermediate'
+language = config['settings']['language']
+difficulty_level = config['settings']['difficulty_level']
 
 output_path = f'../data/{language}/{difficulty_level}/'
 if not os.path.exists(output_path):

@@ -1,14 +1,15 @@
 from openai import OpenAI
 import os, json
 from pydub import AudioSegment
+import yaml
 silence_duration1 = 2000 # milliseconds
 silence_duration2 = 3000 # milliseconds
 
-language = 'German'
-# language = 'Afrikaans'
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)
 
-difficulty_level = 'beginner'
-# difficulty_level = 'intermediate'
+language = config['settings']['language']
+difficulty_level = config['settings']['difficulty_level']
 
 text_lessons_path = f'../data/{language}/{difficulty_level}/lessons.json'
 speech_lessons_path = f'../data/{language}/{difficulty_level}/'
