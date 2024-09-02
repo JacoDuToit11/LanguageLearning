@@ -20,8 +20,8 @@ This project generates audio files that can assist in language learning.
     $ python text_to_speech.py
     ```
 
-Sample lesson:
+<!-- Sample lesson:
 <audio controls>
   <source src="/data/German/beginner/Lesson 2: Introducing Oneself and Others.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
-</audio>
+</audio> -->
