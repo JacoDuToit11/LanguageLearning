@@ -68,11 +68,12 @@ def gen_lessons_text():
         json.dump(lessons_dict, file, indent=4)
 
 def process_lesson_text(text):
+    # Remove number at start of line
     pattern = r"([0-9]+[.])\s"
     text = re.sub(pattern, r"", text)
 
     pattern = r"([.]{3})"
-    text = re.sub(pattern, r".", text)
+    text = re.sub(pattern, r"", text)
 
     text_lines = text.splitlines()
     if '' in text_lines:
@@ -83,6 +84,7 @@ def process_lesson_text(text):
         if i < 2:
             output.append(line)
         else:
+            # Split sentences
             pattern = re.compile(r'\s*([^.!?]*[.!?])')
             sentences = pattern.findall(line)
             output.extend(sentences)
